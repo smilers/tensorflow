@@ -36,16 +36,18 @@ get_ocd_response() # clean it out
 # git path to project elf file
 cur_dir = os.getcwd()
 #elf_file = cur_dir + '/../../gen/ecm3531_cortex-m3/bin/' + 'micro_speech'
-elf_file = cur_dir + '/../../gen/ecm3531_cortex-m3/bin/' + sys.argv[1]
+elf_file = f'{cur_dir}/../../gen/ecm3531_cortex-m3/bin/{sys.argv[1]}'
 print("elf_file = ",elf_file)
 
 
 # use these to download and run the elf fle
-ocd_commands = ["halt\n",
-                "flash erase_sector 0 0 127\n",
-                "flash write_image {}\n".format(elf_file),
-                "mww 0x1001fff8 0\n",
-                "reset\n"]
+ocd_commands = [
+    "halt\n",
+    "flash erase_sector 0 0 127\n",
+    f"flash write_image {elf_file}\n",
+    "mww 0x1001fff8 0\n",
+    "reset\n",
+]
 
 # OK now do what we came here for!!!
 for x in ocd_commands:

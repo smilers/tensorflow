@@ -13,6 +13,7 @@
 # limitations under the License.
 """Lit runner configuration."""
 
+
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -32,7 +33,7 @@ from lit.llvm.subst import ToolSubst
 # Configuration file for the 'lit' test runner.
 
 # name: The name of this test suite.
-config.name = 'MLIR ' + os.path.basename(config.mlir_test_dir)
+config.name = f'MLIR {os.path.basename(config.mlir_test_dir)}'
 
 config.test_format = lit.formats.ShTest(not llvm_config.use_lit_shell)
 
@@ -53,8 +54,7 @@ if platform.system() == 'Windows':
       ToolSubst('not.exe', unresolved='fatal')
   ]
 
-  llvm_config.config.substitutions.append(
-      ('%python', '"%s"' % (sys.executable)))
+  llvm_config.config.substitutions.append(('%python', f'"{sys.executable}"'))
 
   llvm_config.add_tool_substitutions(tool_patterns,
                                      [llvm_config.config.llvm_tools_dir])

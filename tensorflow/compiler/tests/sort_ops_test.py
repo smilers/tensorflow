@@ -44,7 +44,7 @@ class XlaSortOpTest(xla_test.XLATestCase, parameterized.TestCase):
             array_ops.placeholder(dtypes.as_dtype(arg.dtype), arg.shape)
             for arg in args
         ]
-        feeds = {placeholders[i]: args[i] for i in range(0, len(args))}
+        feeds = {placeholders[i]: args[i] for i in range(len(args))}
         output = op(*placeholders)
         if isinstance(output, ops.Tensor):
           output = [output]
@@ -59,10 +59,18 @@ class XlaSortOpTest(xla_test.XLATestCase, parameterized.TestCase):
     return x.reshape(shape)
 
   def _supported_key_types(self):
-    supported_key_types = set([
-        dtypes.bfloat16.as_numpy_dtype, np.float16, np.float32, np.float64,
-        np.int32, np.uint32, np.int16, np.uint16, np.int8, np.uint8
-    ])
+    supported_key_types = {
+        dtypes.bfloat16.as_numpy_dtype,
+        np.float16,
+        np.float32,
+        np.float64,
+        np.int32,
+        np.uint32,
+        np.int16,
+        np.uint16,
+        np.int8,
+        np.uint8,
+    }
     res = supported_key_types.intersection(self.numeric_types)
     assert res
     return res
@@ -175,7 +183,7 @@ class XlaSortOpTest(xla_test.XLATestCase, parameterized.TestCase):
     if np.__version__ < "1.15":
       raise unittest.SkipTest("np.take_along_axis was added in 1.15")
     shape = (20,)
-    for key_type_1 in set([np.int16, np.uint16, np.int32, np.uint32]):
+    for key_type_1 in {np.int16, np.uint16, np.int32, np.uint32}:
       for key_type_2 in self._supported_key_types():
         for value_type in self._supported_key_types():
           inputs = [
@@ -240,10 +248,16 @@ class XlaSortOpTest(xla_test.XLATestCase, parameterized.TestCase):
               wrap_sort, inputs, expected=inputs)
 
   def testTopK(self):
-    supported_types = set([
-        dtypes.bfloat16.as_numpy_dtype, np.float16, np.float32, np.float64,
-        np.int32, np.uint32, np.int64, np.uint64
-    ])
+    supported_types = {
+        dtypes.bfloat16.as_numpy_dtype,
+        np.float16,
+        np.float32,
+        np.float64,
+        np.int32,
+        np.uint32,
+        np.int64,
+        np.uint64,
+    }
     for dtype in supported_types.intersection(self.numeric_types):
       # Use small input size for bfloat16. Otherwise, we'll get duplicate values
       # after conversion to bfloat16, so the possible resulting index array is
@@ -277,35 +291,40 @@ class XlaSortOpTest(xla_test.XLATestCase, parameterized.TestCase):
       ("UnsignedInt64", np.uint64),
   )
   def testTopK2D(self, dtype):
-    if dtype in self.numeric_types:
-      # Use small input size for bfloat16. Otherwise, we'll get duplicate values
-      # after conversion to bfloat16, so the possible resulting index array is
-      # no longer unique.
-      if dtype in (dtypes.bfloat16.as_numpy_dtype, np.float16):
-        array_size = 10
-        k_options = [0, 1, 2, 10]
-      else:
-        array_size = 200 * 1000
-        k_options = [0, 1, 2, 10, 20, 100, 1000, 200 * 1000]
-      batch = 16
-      for x in [np.arange(batch * array_size)]:
-        np.random.shuffle(x)
-        x = np.reshape(x, [batch, array_size])
-        for k in k_options:
-          indices = x.argsort(axis=1)[::, -1:-k - 1:-1]
-          expected = np.sort(x, axis=1)[::, -1:-k - 1:-1]
+    if dtype not in self.numeric_types:
+      return
+    # Use small input size for bfloat16. Otherwise, we'll get duplicate values
+    # after conversion to bfloat16, so the possible resulting index array is
+    # no longer unique.
+    if dtype in (dtypes.bfloat16.as_numpy_dtype, np.float16):
+      array_size = 10
+      k_options = [0, 1, 2, 10]
+    else:
+      array_size = 200 * 1000
+      k_options = [0, 1, 2, 10, 20, 100, 1000, 200 * 1000]
+    batch = 16
+    for x in [np.arange(batch * array_size)]:
+      np.random.shuffle(x)
+      x = np.reshape(x, [batch, array_size])
+      for k in k_options:
+        indices = x.argsort(axis=1)[::, -1:-k - 1:-1]
+        expected = np.sort(x, axis=1)[::, -1:-k - 1:-1]
 
-          def topk(v, k=k):
-            return nn_ops.top_k(v, k=k, sorted=True)
+        def topk(v, k=k):
+          return nn_ops.top_k(v, k=k, sorted=True)
 
-          self._assertOpOutputMatchesExpected(
-              topk, [x.astype(dtype)],
-              expected=[expected.astype(dtype), indices])
+        self._assertOpOutputMatchesExpected(
+            topk, [x.astype(dtype)],
+            expected=[expected.astype(dtype), indices])
 
   def testTopKZeros(self):
     """Tests that positive and negative zeros sort correctly."""
-    supported_types = set(
-        [dtypes.bfloat16.as_numpy_dtype, np.float16, np.float32, np.float64])
+    supported_types = {
+        dtypes.bfloat16.as_numpy_dtype,
+        np.float16,
+        np.float32,
+        np.float64,
+    }
     for dtype in supported_types.intersection(self.numeric_types):
       with self.session() as sess:
         p = array_ops.placeholder(dtype)
@@ -315,12 +334,16 @@ class XlaSortOpTest(xla_test.XLATestCase, parameterized.TestCase):
             topk,
             {p: np.array([0., -0., 0., 3., -0., -4., 0., -0.], dtype=dtype)})
         self.assertAllEqual(np.array([3., 0., 0., 0.], dtype=dtype), results[0])
-        self.assertEqual(list([3, 0, 2, 6]), list(results[1]))
+        self.assertEqual([3, 0, 2, 6], list(results[1]))
 
   def testTopKInfinities(self):
     """Tests that positive and negative infinity sort correctly."""
-    supported_types = set(
-        [dtypes.bfloat16.as_numpy_dtype, np.float16, np.float32, np.float64])
+    supported_types = {
+        dtypes.bfloat16.as_numpy_dtype,
+        np.float16,
+        np.float32,
+        np.float64,
+    }
     for dtype in supported_types.intersection(self.numeric_types):
       with self.session() as sess:
         p = array_ops.placeholder(dtype)
@@ -334,7 +357,7 @@ class XlaSortOpTest(xla_test.XLATestCase, parameterized.TestCase):
         self.assertAllEqual(
             np.array([float("inf"), 2.0, 1.0, -1.0, -2.0, -float("inf")],
                      dtype=dtype), results[0])
-        self.assertEqual(list([2, 1, 0, 4, 5, 3]), list(results[1]))
+        self.assertEqual([2, 1, 0, 4, 5, 3], list(results[1]))
 
   @parameterized.named_parameters(
       ("Int32", np.int32),

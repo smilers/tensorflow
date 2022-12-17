@@ -75,10 +75,7 @@ def load_regex_parser(filename):
   regex_parser = {}
   for key, val in content.items():
     if isinstance(val, list):
-      regexs = []
-      for pattern in val:
-        regexs.append(re.compile(pattern))
-
+      regexs = [re.compile(pattern) for pattern in val]
       regex_parser[key] = regexs
     else:
       regex_parser[key] = re.compile(val)
@@ -155,7 +152,7 @@ def gdb_log_parser(data, output, re_file, ignore_list=None, full_trace=False):
     # Strip the string before adding into parsed list
     processed.append(target)
 
-  print("Extracted {} lines".format(len(processed)))
+  print(f"Extracted {len(processed)} lines")
 
   # Write parsed log to file
   writelines(processed, output)
@@ -171,10 +168,10 @@ def gdb_log_parser(data, output, re_file, ignore_list=None, full_trace=False):
         content[top].append(info)
 
     name = os.path.splitext(output)[0]
-    with open(name + ".json", "w") as f:
+    with open(f"{name}.json", "w") as f:
       json.dump(content, f, sort_keys=True, indent=4)
 
-  print("Parsed the log to `{}`".format(output))
+  print(f"Parsed the log to `{output}`")
 
 
 def renode_log_parser(data, output, ignore_list=None):
@@ -185,7 +182,7 @@ def renode_log_parser(data, output, ignore_list=None):
     ignore_list: list of string (functions) to ignore
   """
   message = "Entering function"
-  extractor = re.compile(r"{} (.*) at".format(message))
+  extractor = re.compile(f"{message} (.*) at")
 
   ignore_count = 0
   processed = []
@@ -217,7 +214,7 @@ def renode_log_parser(data, output, ignore_list=None):
   # Write parsed log to file
   writelines(processed, output)
 
-  print("Parsed the log to `{}`".format(output))
+  print(f"Parsed the log to `{output}`")
 
 
 def parse_log(filename,
@@ -232,17 +229,17 @@ def parse_log(filename,
     output(str)
   """
   data = readlines(filename)
-  print("Raw log: {} lines".format(len(data)))
+  print(f"Raw log: {len(data)} lines")
 
   ignore_list = None
   if ignore is not None:
     ignore_list = set(readlines(ignore))
-    print("* {} patterns in the ignore list".format(len(ignore_list)))
+    print(f"* {len(ignore_list)} patterns in the ignore list")
 
   name, ext = None, None
   if output is None:
     name, ext = os.path.splitext(filename)
-    output = "{}-parsed{}".format(name, ext)
+    output = f"{name}-parsed{ext}"
 
   if source == "gdb":
     gdb_log_parser(data, output, re_file, ignore_list, full_trace)
@@ -258,7 +255,7 @@ def visualize_log(filename, top=None, title=None, show=False, save=True):
     filename(str)
   """
   data = readlines(filename)
-  print("Parsed log: {} lines".format(len(data)))
+  print(f"Parsed log: {len(data)} lines")
 
   x, y = get_frequency(data)
 
@@ -277,9 +274,9 @@ def visualize_log(filename, top=None, title=None, show=False, save=True):
     plt.show()
 
   if save:
-    fig_name = "{}.png".format(os.path.splitext(filename)[0])
+    fig_name = f"{os.path.splitext(filename)[0]}.png"
     plt.savefig(fname=fig_name, bbox_inches="tight", dpi=300)
-    print("Figure saved in {}".format(fig_name))
+    print(f"Figure saved in {fig_name}")
 
 
 def get_frequency(data):
@@ -331,7 +328,7 @@ if __name__ == "__main__":
 
   if args.output is None:
     fname, extension = os.path.splitext(args.input)
-    args.output = "{}-parsed{}".format(fname, extension)
+    args.output = f"{fname}-parsed{extension}"
 
   parse_log(args.input, args.output, args.regex, args.source, args.ignore,
             args.full_trace)

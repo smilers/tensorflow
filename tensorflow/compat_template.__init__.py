@@ -14,6 +14,7 @@
 # ==============================================================================
 """Bring in all of the public TensorFlow interface into this module."""
 
+
 from __future__ import absolute_import as _absolute_import
 from __future__ import division as _division
 from __future__ import print_function as _print_function
@@ -47,15 +48,13 @@ except ImportError:
 # Lazy-load estimator.
 _estimator_module = "tensorflow_estimator.python.estimator.api._v2.estimator"
 estimator = _LazyLoader("estimator", globals(), _estimator_module)
-_module_dir = _module_util.get_parent_dir_for_name(_estimator_module)
-if _module_dir:
+if _module_dir := _module_util.get_parent_dir_for_name(_estimator_module):
   _current_module.__path__ = [_module_dir] + _current_module.__path__
 setattr(_current_module, "estimator", estimator)
 
 _keras_module = "keras.api._v2.keras"
 keras = _LazyLoader("keras", globals(), _keras_module)
-_module_dir = _module_util.get_parent_dir_for_name(_keras_module)
-if _module_dir:
+if _module_dir := _module_util.get_parent_dir_for_name(_keras_module):
   _current_module.__path__ = [_module_dir] + _current_module.__path__
 setattr(_current_module, "keras", keras)
 
@@ -83,12 +82,12 @@ if hasattr(_current_module, 'keras'):
   # when it doing some very initial loading, like tf.compat.v2, etc.
   try:
     _keras_package = "keras.api._v2.keras."
-    losses = _LazyLoader("losses", globals(), _keras_package + "losses")
-    metrics = _LazyLoader("metrics", globals(), _keras_package + "metrics")
-    optimizers = _LazyLoader(
-        "optimizers", globals(), _keras_package + "optimizers")
-    initializers = _LazyLoader(
-        "initializers", globals(), _keras_package + "initializers")
+    losses = _LazyLoader("losses", globals(), f"{_keras_package}losses")
+    metrics = _LazyLoader("metrics", globals(), f"{_keras_package}metrics")
+    optimizers = _LazyLoader("optimizers", globals(),
+                             f"{_keras_package}optimizers")
+    initializers = _LazyLoader("initializers", globals(),
+                               f"{_keras_package}initializers")
     setattr(_current_module, "losses", losses)
     setattr(_current_module, "metrics", metrics)
     setattr(_current_module, "optimizers", optimizers)

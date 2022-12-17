@@ -196,10 +196,10 @@ def main(_):
 
   # Merge all the summaries and write them out to /tmp/retrain_logs (by default)
   merged_summaries = tf.compat.v1.summary.merge_all(scope='eval')
-  train_writer = tf.compat.v1.summary.FileWriter(FLAGS.summaries_dir + '/train',
-                                                 sess.graph)
+  train_writer = tf.compat.v1.summary.FileWriter(
+      f'{FLAGS.summaries_dir}/train', sess.graph)
   validation_writer = tf.compat.v1.summary.FileWriter(
-      FLAGS.summaries_dir + '/validation')
+      f'{FLAGS.summaries_dir}/validation')
 
   tf.compat.v1.global_variables_initializer().run()
 
@@ -213,12 +213,10 @@ def main(_):
 
   # Save graph.pbtxt.
   tf.io.write_graph(sess.graph_def, FLAGS.train_dir,
-                    FLAGS.model_architecture + '.pbtxt')
+                    f'{FLAGS.model_architecture}.pbtxt')
 
   # Save list of words.
-  with gfile.GFile(
-      os.path.join(FLAGS.train_dir, FLAGS.model_architecture + '_labels.txt'),
-      'w') as f:
+  with gfile.GFile(os.path.join(FLAGS.train_dir, f'{FLAGS.model_architecture}_labels.txt'), 'w') as f:
     f.write('\n'.join(audio_processor.words_list))
 
   # Training loop.
@@ -292,7 +290,7 @@ def main(_):
     if (training_step % FLAGS.save_step_interval == 0 or
         training_step == training_steps_max):
       checkpoint_path = os.path.join(FLAGS.train_dir,
-                                     FLAGS.model_architecture + '.ckpt')
+                                     f'{FLAGS.model_architecture}.ckpt')
       tf.compat.v1.logging.info('Saving to "%s-%d"', checkpoint_path,
                                 training_step)
       saver.save(sess, checkpoint_path, global_step=training_step)

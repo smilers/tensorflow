@@ -93,8 +93,7 @@ def read_label_file(file_name):
   """Load a list of label."""
   label_list = []
   with open(file_name, 'r') as f:
-    for line in f:
-      label_list.append(line.strip())
+    label_list.extend(line.strip() for line in f)
   return label_list
 
 
@@ -169,12 +168,11 @@ def main(_):
             try:
               recognition_state = stats.delta()
             except ValueError as e:
-              tf.compat.v1.logging.error(
-                  'Statistics delta computing failed: {}'.format(e))
+              tf.compat.v1.logging.error(f'Statistics delta computing failed: {e}')
             else:
-              tf.compat.v1.logging.info('{}ms {}:{}{}'.format(
-                  current_time_ms, recognize_element.founded_command,
-                  recognize_element.score, recognition_state))
+              tf.compat.v1.logging.info(
+                  f'{current_time_ms}ms {recognize_element.founded_command}:{recognize_element.score}{recognition_state}'
+              )
               stats.print_accuracy_stats()
   stats.calculate_accuracy_stats(all_found_words, -1, FLAGS.time_tolerance_ms)
   stats.print_accuracy_stats()

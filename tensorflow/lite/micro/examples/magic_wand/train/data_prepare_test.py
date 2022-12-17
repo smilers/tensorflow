@@ -32,7 +32,7 @@ from data_prepare import write_data
 class TestPrepare(unittest.TestCase):
 
   def setUp(self):  # pylint: disable=g-missing-super-call
-    self.file = "./%s/output_%s_%s.txt" % (folders[0], folders[0], names[0])  # pylint: disable=undefined-variable
+    self.file = f"./{folders[0]}/output_{folders[0]}_{names[0]}.txt"
     self.data = []
     prepare_original_data(folders[0], names[0], self.data, self.file)  # pylint: disable=undefined-variable
 
@@ -40,7 +40,7 @@ class TestPrepare(unittest.TestCase):
     num = 0
     with open(self.file, "r") as f:
       lines = csv.reader(f)
-      for idx, line in enumerate(lines):  # pylint: disable=unused-variable
+      for line in lines:
         if len(line) == 3 and line[2] == "-":
           num += 1
     self.assertEqual(len(self.data), num)
@@ -53,11 +53,8 @@ class TestPrepare(unittest.TestCase):
     original_len = len(self.data)
     generate_negative_data(self.data)
     self.assertEqual(original_len + 300, len(self.data))
-    generated_num = 0
-    for idx, data in enumerate(self.data):  # pylint: disable=undefined-variable, unused-variable
-      if data["name"] == "negative6" or data["name"] == "negative7" or data[
-          "name"] == "negative8":
-        generated_num += 1
+    generated_num = sum(data["name"] in ["negative6", "negative7", "negative8"]
+                        for data in self.data)
     self.assertEqual(generated_num, 300)
 
   def test_write_data(self):

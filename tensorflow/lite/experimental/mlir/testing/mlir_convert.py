@@ -61,8 +61,10 @@ def mlir_convert(options, graph_def, input_tensors, output_tensors, **kwargs):
     converter.experimental_new_quantizer = options.mlir_quantizer
 
     if options.run_with_flex:
-      converter.supported_ops = set([
-          tf.lite.OpsSet.TFLITE_BUILTINS, tf.lite.OpsSet.SELECT_TF_OPS])
+      converter.supported_ops = {
+          tf.lite.OpsSet.TFLITE_BUILTINS,
+          tf.lite.OpsSet.SELECT_TF_OPS,
+      }
 
     if test_params.get("dynamic_range_quantize", False):
       converter.optimizations = [tf.lite.Optimize.DEFAULT]
@@ -150,27 +152,20 @@ def mlir_convert_file(graph_def_filename,
   bin_path = resource_loader.get_path_to_datafile(
       "../../../../compiler/mlir/lite/tf_tfl_translate")
 
-  with tempfile.NamedTemporaryFile() as output_file, \
-       tempfile.NamedTemporaryFile("w+") as stdout_file:
-    input_shapes = []
-    for input_tensor in input_tensors:
-      shape = input_tensor[1]
-      input_shapes.append(",".join([str(dim) for dim in shape]))
-    input_shapes_str = ":".join(input_shapes)
-
+  with (tempfile.NamedTemporaryFile() as output_file, tempfile.NamedTemporaryFile("w+") as stdout_file):
+    input_shapes = [
+        ",".join([str(dim) for dim in input_tensor[1]])
+        for input_tensor in input_tensors
+    ]
     input_types = ",".join([x[2] for x in input_tensors])
 
     quant_flags = ""
     if quantization_params is not None:
       min_vals = ",".join([str(val) for val in quantization_params[1]])
       max_vals = ",".join([str(val) for val in quantization_params[2]])
-      quant_flags = ("-tf-inference-type=" + quantization_params[0] +
-                     " -tf-input-min-values='" + min_vals +
-                     "' -tf-input-max-values='" + max_vals + "' " +
-                     "-emit-quant-adaptor-ops ")
-    cmd = ("%s -tf-input-arrays=%s -tf-input-data-types=%s -tf-input-shapes=%s "
-           "-tf-output-arrays=%s " + quant_flags + additional_flags +
-           "%s -o %s")
+      quant_flags = f"-tf-inference-type={quantization_params[0]} -tf-input-min-values='{min_vals}' -tf-input-max-values='{max_vals}' -emit-quant-adaptor-ops "
+    cmd = f"%s -tf-input-arrays=%s -tf-input-data-types=%s -tf-input-shapes=%s -tf-output-arrays=%s {quant_flags}{additional_flags}%s -o %s"
+    input_shapes_str = ":".join(input_shapes)
     cmd = cmd % (
         bin_path,
         ",".join([x[0] for x in input_tensors]),
@@ -210,17 +205,15 @@ def mlir_convert_saved_model(saved_model_dir,
   """
   bin_path = resource_loader.get_path_to_datafile(
       "../../../../compiler/mlir/lite/tf_tfl_translate")
-  with tempfile.NamedTemporaryFile() as output_file, \
-       tempfile.NamedTemporaryFile("w+") as stdout_file:
+  with (tempfile.NamedTemporaryFile() as output_file, tempfile.NamedTemporaryFile("w+") as stdout_file):
     tags_str = ",".join(tags)
     exported_names_str = ",".join(exported_names)
 
-    saved_model_flag = "-savedmodel-objectgraph-to-mlir"
     if is_signature_def_saved_model:
       saved_model_flag = "-savedmodel-signaturedefs-to-mlir"
-
-    cmd = ("%s %s --tf-savedmodel-tags=%s --tf-savedmodel-exported-names=%s " +
-           additional_flags + " %s --o=%s")
+    else:
+      saved_model_flag = "-savedmodel-objectgraph-to-mlir"
+    cmd = f"%s %s --tf-savedmodel-tags=%s --tf-savedmodel-exported-names=%s {additional_flags} %s --o=%s"
     cmd = cmd % (
         bin_path,
         saved_model_flag,

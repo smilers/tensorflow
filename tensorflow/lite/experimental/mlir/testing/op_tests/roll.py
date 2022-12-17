@@ -97,9 +97,7 @@ def make_roll_tests(options):
     return [4 if x is None else x for x in shape]
 
   def get_shape(param):
-    if np.isscalar(param):
-      return []
-    return [len(param)]
+    return [] if np.isscalar(param) else [len(param)]
 
   def get_value(param, dtype):
     if np.isscalar(param):

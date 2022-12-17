@@ -47,7 +47,7 @@ class XlaOpsNumericalTest(xla_test.XLATestCase, parameterized.TestCase):
             array_ops.placeholder(dtypes.as_dtype(arg.dtype), arg.shape)
             for arg in args
         ]
-        feeds = {placeholders[i]: args[i] for i in range(0, len(args))}
+        feeds = {placeholders[i]: args[i] for i in range(len(args))}
         output = op(*placeholders)
       result = session.run(output, feeds)
       if not equality_fn:
@@ -129,8 +129,7 @@ class XlaOpsNumericalTest(xla_test.XLATestCase, parameterized.TestCase):
 
   @parameterized.parameters(*PRECISION_VALUES)
   def testConv(self, precision):
-    for dtype in set(self.float_types).intersection(
-        set([dtypes.bfloat16.as_numpy_dtype, np.float32])):
+    for dtype in set(self.float_types).intersection({dtypes.bfloat16.as_numpy_dtype, np.float32}):
 
       def conv_1d_fn(lhs, rhs):
         dnums = xla_data_pb2.ConvolutionDimensionNumbers()
@@ -412,8 +411,7 @@ class XlaOpsNumericalTest(xla_test.XLATestCase, parameterized.TestCase):
 
   @test_util.disable_mlir_bridge('Not supported yet')
   def testReduce(self):
-    for dtype in set(self.numeric_types).intersection(
-        set([dtypes.bfloat16.as_numpy_dtype, np.float32])):
+    for dtype in set(self.numeric_types).intersection({dtypes.bfloat16.as_numpy_dtype, np.float32}):
 
       @function.Defun(dtype, dtype)
       def sum_reducer(x, y):
@@ -463,8 +461,7 @@ class XlaOpsNumericalTest(xla_test.XLATestCase, parameterized.TestCase):
 
   @test_util.disable_mlir_bridge('Not supported yet')
   def testVariadicReduce(self):
-    for dtype in set(self.numeric_types).intersection(
-        set([np.float32, np.complex64])):
+    for dtype in set(self.numeric_types).intersection({np.float32, np.complex64}):
 
       @def_function.function
       def kahan_sum_reducer(t0, t1):
@@ -535,8 +532,7 @@ class XlaOpsNumericalTest(xla_test.XLATestCase, parameterized.TestCase):
 
   @test_util.disable_mlir_bridge('Not supported yet')
   def testSelectAndScatter(self):
-    for dtype in set(self.numeric_types).intersection(
-        set([dtypes.bfloat16.as_numpy_dtype, np.float32])):
+    for dtype in set(self.numeric_types).intersection({dtypes.bfloat16.as_numpy_dtype, np.float32}):
 
       @function.Defun(dtype, dtype)
       def add_scatter(x, y):

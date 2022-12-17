@@ -137,8 +137,8 @@ class StreamingAccuracyStats(object):
   def print_accuracy_stats(self):
     """Write a human-readable description of the statistics to stdout."""
     if self._how_many_gt == 0:
-      tf.compat.v1.logging.info('No ground truth yet, {}false positives'.format(
-          self._how_many_fp))
+      tf.compat.v1.logging.info(
+          f'No ground truth yet, {self._how_many_fp}false positives')
     else:
       any_match_percentage = self._how_many_gt_matched / self._how_many_gt * 100
       correct_match_percentage = self._how_many_c / self._how_many_gt * 100

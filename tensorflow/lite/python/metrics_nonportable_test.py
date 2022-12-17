@@ -259,7 +259,7 @@ class ConverterMetricsTest(test_util.TensorFlowTestCase):
 
   def test_conversion_from_saved_model(self):
     saved_model_dir = self._createV1SavedModel(shape=[1, 16, 16, 3])
-    converter = lite.TFLiteSavedModelConverter(saved_model_dir, set(['serve']),
+    converter = lite.TFLiteSavedModelConverter(saved_model_dir, {'serve'},
                                                ['serving_default'])
     converter.experimental_new_converter = True
     mock_metrics = mock.create_autospec(
@@ -343,7 +343,7 @@ def mock_ngrams(data, width, axis=-1, string_separator=' ', name=None):
       data = ragged_tensor.convert_to_tensor_or_ragged_tensor(data, name='data')
       slices = []
       for start in range(width):
-        stop = None if start - width + 1 == 0 else start - width + 1
+        stop = None if start - width == -1 else start - width + 1
         if axis >= 0:
           idx = [slice(None)] * axis + [slice(start, stop)]
         else:

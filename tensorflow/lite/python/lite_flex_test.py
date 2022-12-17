@@ -58,7 +58,7 @@ class FromSessionTest(test_util.TensorFlowTestCase, parameterized.TestCase):
     # Convert model and ensure model is not None.
     converter = lite.TFLiteConverter.from_session(sess, [in_tensor],
                                                   [out_tensor])
-    converter.target_spec.supported_ops = set([lite.OpsSet.SELECT_TF_OPS])
+    converter.target_spec.supported_ops = {lite.OpsSet.SELECT_TF_OPS}
     converter.experimental_new_converter = enable_mlir
     tflite_model = converter.convert()
     self.assertTrue(tflite_model)
@@ -85,7 +85,7 @@ class FromSessionTest(test_util.TensorFlowTestCase, parameterized.TestCase):
         out_tensor = nn_ops.l2_loss(in_tensor)
         converter = lite.TFLiteConverter.from_session(sess, [in_tensor],
                                                       [out_tensor])
-        converter.target_spec.supported_ops = set([lite.OpsSet.SELECT_TF_OPS])
+        converter.target_spec.supported_ops = {lite.OpsSet.SELECT_TF_OPS}
         converter._experimental_allow_all_select_tf_ops = True
         tflite_model = converter.convert()
     self.assertTrue(tflite_model)
@@ -100,12 +100,12 @@ class FromSessionTest(test_util.TensorFlowTestCase, parameterized.TestCase):
     # Convert model and ensure model is not None.
     converter = lite.TFLiteConverter.from_session(sess, [in_tensor],
                                                   [out_tensor])
-    converter.target_ops = set([lite.OpsSet.SELECT_TF_OPS])
+    converter.target_ops = {lite.OpsSet.SELECT_TF_OPS}
 
     # Ensure `target_ops` is set to the correct value after flag deprecation.
-    self.assertEqual(converter.target_ops, set([lite.OpsSet.SELECT_TF_OPS]))
+    self.assertEqual(converter.target_ops, {lite.OpsSet.SELECT_TF_OPS})
     self.assertEqual(converter.target_spec.supported_ops,
-                     set([lite.OpsSet.SELECT_TF_OPS]))
+                     {lite.OpsSet.SELECT_TF_OPS})
 
     tflite_model = converter.convert()
     self.assertTrue(tflite_model)
@@ -141,7 +141,7 @@ class FromConcreteFunctionTest(test_util.TensorFlowTestCase,
 
     # Convert model.
     converter = lite.TFLiteConverterV2.from_concrete_functions([concrete_func])
-    converter.target_spec.supported_ops = set([lite.OpsSet.SELECT_TF_OPS])
+    converter.target_spec.supported_ops = {lite.OpsSet.SELECT_TF_OPS}
     converter.experimental_new_converter = enable_mlir
     tflite_model = converter.convert()
 
@@ -202,7 +202,7 @@ class WithCustomOpTest(test_util.TensorFlowTestCase, parameterized.TestCase):
         saved_model.simple_save(sess, saved_model_dir, inputs, outputs)
 
     converter = lite.TFLiteConverterV2.from_saved_model(saved_model_dir)
-    converter.target_spec.supported_ops = set([lite.OpsSet.SELECT_TF_OPS])
+    converter.target_spec.supported_ops = {lite.OpsSet.SELECT_TF_OPS}
     converter.target_spec.experimental_select_user_tf_ops = ['CustomAdd4']
     tflite_model = converter.convert()
 
@@ -221,7 +221,7 @@ class WithCustomOpTest(test_util.TensorFlowTestCase, parameterized.TestCase):
         saved_model.simple_save(sess, saved_model_dir, inputs, outputs)
 
     converter = lite.TFLiteConverterV2.from_saved_model(saved_model_dir)
-    converter.target_spec.supported_ops = set([lite.OpsSet.SELECT_TF_OPS])
+    converter.target_spec.supported_ops = {lite.OpsSet.SELECT_TF_OPS}
     converter.target_spec.experimental_select_user_tf_ops = ['Double']
     tflite_model = converter.convert()
     self.assertTrue(tflite_model)

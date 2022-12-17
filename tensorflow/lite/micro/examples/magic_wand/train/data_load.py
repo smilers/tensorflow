@@ -53,25 +53,24 @@ class DataLoader(object):
     label = []
     with open(data_path, "r") as f:
       lines = f.readlines()
-      for idx, line in enumerate(lines):  # pylint: disable=unused-variable
+      for line in lines:
         dic = json.loads(line)
         data.append(dic[DATA_NAME])
         label.append(dic[LABEL_NAME])
     if data_type == "train":
       data, label = augment_data(data, label)
     length = len(label)
-    print(data_type + "_data_length:" + str(length))
+    print(f"{data_type}_data_length:{length}")
     return data, label, length
 
   def pad(self, data, seq_length, dim):
     """Get neighbour padding."""
     noise_level = 20
-    padded_data = []
     # Before- Neighbour padding
     tmp_data = (np.random.rand(seq_length, dim) - 0.5) * noise_level + data[0]
     tmp_data[(seq_length -
               min(len(data), seq_length)):] = data[:min(len(data), seq_length)]
-    padded_data.append(tmp_data)
+    padded_data = [tmp_data]
     # After- Neighbour padding
     tmp_data = (np.random.rand(seq_length, dim) - 0.5) * noise_level + data[-1]
     tmp_data[:min(len(data), seq_length)] = data[:min(len(data), seq_length)]

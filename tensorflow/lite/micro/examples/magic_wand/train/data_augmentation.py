@@ -28,9 +28,8 @@ import numpy as np
 
 def time_wrapping(molecule, denominator, data):
   """Generate (molecule/denominator)x speed data."""
-  tmp_data = [[0
-               for i in range(len(data[0]))]
-              for j in range((int(len(data) / molecule) - 1) * denominator)]
+  tmp_data = [[0 for _ in range(len(data[0]))]
+              for _ in range((int(len(data) / molecule) - 1) * denominator)]
   for i in range(int(len(data) / molecule) - 1):
     for j in range(len(data[i])):
       for k in range(denominator):
@@ -44,18 +43,18 @@ def augment_data(original_data, original_label):
   """Perform data augmentation."""
   new_data = []
   new_label = []
-  for idx, (data, label) in enumerate(zip(original_data, original_label)):  # pylint: disable=unused-variable
+  for idx, (data, label) in enumerate(zip(original_data, original_label)):# pylint: disable=unused-variable
     # Original data
     new_data.append(data)
     new_label.append(label)
     # Sequence shift
-    for num in range(5):  # pylint: disable=unused-variable
+    for _ in range(5):
       new_data.append((np.array(data, dtype=np.float32) +
                        (random.random() - 0.5) * 200).tolist())
       new_label.append(label)
     # Random noise
-    tmp_data = [[0 for i in range(len(data[0]))] for j in range(len(data))]
-    for num in range(5):
+    tmp_data = [[0 for _ in range(len(data[0]))] for _ in range(len(data))]
+    for _ in range(5):
       for i in range(len(tmp_data)):
         for j in range(len(tmp_data[i])):
           tmp_data[i][j] = data[i][j] + 5 * random.random()

@@ -53,20 +53,18 @@ def main(unused_args, flags):
     # These extension indexes are used by uVision to keep track of the type
     # of files. I determined them by experimentation, since the file format
     # isn't documented.
-    if ext == '.h':
+    if ext == '.h' or ext not in ['.c', '.cc', '.cpp']:
       ext_index = '5'
     elif ext == '.c':
       ext_index = '1'
-    elif ext == '.cc' or ext == '.cpp':
-      ext_index = '8'
     else:
-      ext_index = '5'
+      ext_index = '8'
     basename = sanitize_xml(os.path.basename(src))
     clean_src = sanitize_xml(src)
     replace_srcs += '            <File>\n'
-    replace_srcs += '              <FileName>' + basename + '</FileName>\n'
-    replace_srcs += '              <FileType>' + ext_index + '</FileType>\n'
-    replace_srcs += '              <FilePath>' + clean_src + '</FilePath>\n'
+    replace_srcs += f'              <FileName>{basename}' + '</FileName>\n'
+    replace_srcs += f'              <FileType>{ext_index}' + '</FileType>\n'
+    replace_srcs += f'              <FilePath>{clean_src}' + '</FilePath>\n'
     replace_srcs += '            </File>\n'
   template_file_text = re.sub(r'%{SRCS}%', replace_srcs,
                               six.ensure_str(template_file_text))

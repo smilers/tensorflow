@@ -40,12 +40,12 @@ class TestSplit(unittest.TestCase):
     self.assertIsInstance(self.data, list)
     self.assertIsInstance(self.data[0], dict)
     self.assertEqual(
-        set(list(self.data[-1])), set(["gesture", "accel_ms2_xyz", "name"]))
+        set(list(self.data[-1])), {"gesture", "accel_ms2_xyz", "name"})
 
   def test_split_data(self):
     with open("./data/complete_data", "r") as f:
       lines = f.readlines()
-      for idx, line in enumerate(lines):  # pylint: disable=unused-variable
+      for line in lines:
         dic = json.loads(line)
         for ges in self.num_dic:
           if dic["gesture"] == ges:

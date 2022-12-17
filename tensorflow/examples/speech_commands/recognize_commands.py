@@ -123,15 +123,14 @@ class RecognizeCommands(object):
         previous one in the average window
     """
     if latest_results.shape[0] != self._label_count:
-      raise ValueError("The results for recognition should contain {} "
-                       "elements, but there are {} produced".format(
-                           self._label_count, latest_results.shape[0]))
+      raise ValueError(
+          f"The results for recognition should contain {self._label_count} elements, but there are {latest_results.shape[0]} produced"
+      )
     if (self._previous_results.__len__() != 0 and
         current_time_ms < self._previous_results[0][0]):
-      raise ValueError("Results must be fed in increasing time order, "
-                       "but receive a timestamp of {}, which was earlier "
-                       "than the previous one of {}".format(
-                           current_time_ms, self._previous_results[0][0]))
+      raise ValueError(
+          f"Results must be fed in increasing time order, but receive a timestamp of {current_time_ms}, which was earlier than the previous one of {self._previous_results[0][0]}"
+      )
 
     # Add the latest result to the head of the deque.
     self._previous_results.append([current_time_ms, latest_results])
@@ -160,9 +159,8 @@ class RecognizeCommands(object):
         average_scores[i] += score[i] / how_many_results
 
     # Sort the averaged results in descending score order.
-    sorted_averaged_index_score = []
-    for i in range(self._label_count):
-      sorted_averaged_index_score.append([i, average_scores[i]])
+    sorted_averaged_index_score = [[i, average_scores[i]]
+                                   for i in range(self._label_count)]
     sorted_averaged_index_score = sorted(
         sorted_averaged_index_score, key=lambda p: p[1], reverse=True)
 

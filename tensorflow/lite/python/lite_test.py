@@ -69,9 +69,7 @@ class TestModels(LiteTest):
 
   def assertValidDebugInfo(self, debug_info):
     """Verify the DebugInfo is valid."""
-    file_names = set()
-    for file_path in debug_info.files:
-      file_names.add(os.path.basename(file_path))
+    file_names = {os.path.basename(file_path) for file_path in debug_info.files}
     # To make the test independent on how the nodes are created, we only assert
     # the name of this test file.
     self.assertIn('lite_test.py', file_names)
@@ -1283,22 +1281,18 @@ class FromSessionTest(TestModels, parameterized.TestCase):
       quantized_converter.inference_type = quantized_type
       quantized_converter.convert()
     self.assertEqual(
-        'The `quantized_input_stats` flag must be defined when either '
-        '`inference_type` flag or `inference_input_type` flag is set to '
-        'tf.int8 or tf.uint8. Currently, `inference_type=tf.{}` and '
-        '`inference_input_type=None`.'.format(quantized_type.name),
-        str(error.exception))
+        f'The `quantized_input_stats` flag must be defined when either `inference_type` flag or `inference_input_type` flag is set to tf.int8 or tf.uint8. Currently, `inference_type=tf.{quantized_type.name}` and `inference_input_type=None`.',
+        str(error.exception),
+    )
 
     with self.assertRaises(ValueError) as error:
       quantized_converter.inference_type = dtypes.float32
       quantized_converter.inference_input_type = quantized_type
       quantized_converter.convert()
     self.assertEqual(
-        'The `quantized_input_stats` flag must be defined when either '
-        '`inference_type` flag or `inference_input_type` flag is set to '
-        'tf.int8 or tf.uint8. Currently, `inference_type=tf.float32` and '
-        '`inference_input_type=tf.{}`.'.format(quantized_type.name),
-        str(error.exception))
+        f'The `quantized_input_stats` flag must be defined when either `inference_type` flag or `inference_input_type` flag is set to tf.int8 or tf.uint8. Currently, `inference_type=tf.float32` and `inference_input_type=tf.{quantized_type.name}`.',
+        str(error.exception),
+    )
 
     quantized_converter.inference_type = quantized_type
     quantized_converter.inference_input_type = quantized_type
@@ -1638,7 +1632,7 @@ class FromSessionTest(TestModels, parameterized.TestCase):
 
     # Check the add node in the inlined function is included.
     func = sess.graph.as_graph_def().library.function[0].signature.name
-    self.assertIn(('add@' + six.ensure_str(func)), converter._debug_info.traces)
+    self.assertIn(f'add@{six.ensure_str(func)}', converter._debug_info.traces)
 
   def testOutputOnlyModel(self):
     with ops.Graph().as_default():
@@ -1848,9 +1842,8 @@ class FromFrozenGraphFile(LiteTest):
     with self.assertRaises(IOError) as error:
       lite.TFLiteConverter.from_frozen_graph(graph_def_file, ['Placeholder'],
                                              ['add'])
-    self.assertEqual(
-        'Unable to parse input file \'{}\'.'.format(graph_def_file),
-        str(error.exception))
+    self.assertEqual(f"Unable to parse input file \'{graph_def_file}\'.",
+                     str(error.exception))
 
   def testFloatTocoConverter(self):
     with ops.Graph().as_default():
