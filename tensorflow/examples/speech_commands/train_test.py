@@ -123,15 +123,19 @@ class TrainTest(test.TestCase):
     self.assertTrue(
         gfile.Exists(
             os.path.join(train.FLAGS.train_dir,
-                         train.FLAGS.model_architecture + '.pbtxt')))
+                         f'{train.FLAGS.model_architecture}.pbtxt')))
     self.assertTrue(
         gfile.Exists(
-            os.path.join(train.FLAGS.train_dir,
-                         train.FLAGS.model_architecture + '_labels.txt')))
+            os.path.join(
+                train.FLAGS.train_dir,
+                f'{train.FLAGS.model_architecture}_labels.txt',
+            )))
     self.assertTrue(
         gfile.Exists(
-            os.path.join(train.FLAGS.train_dir,
-                         train.FLAGS.model_architecture + '.ckpt-1.meta')))
+            os.path.join(
+                train.FLAGS.train_dir,
+                f'{train.FLAGS.model_architecture}.ckpt-1.meta',
+            )))
 
 
 if __name__ == '__main__':

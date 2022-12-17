@@ -259,22 +259,15 @@ class FromConcreteFunctionTest(lite_v2_test_util.ModelTest):
     quantized_converter.optimizations = [lite.Optimize.DEFAULT]
     quantized_converter.representative_dataset = calibration_gen
     if is_int_only:
-      if is_int16_quantize:
-        quantized_converter.target_spec.supported_ops = [
-            lite.OpsSet.
-            EXPERIMENTAL_TFLITE_BUILTINS_ACTIVATIONS_INT16_WEIGHTS_INT8
-        ]
-      else:
-        quantized_converter.target_spec.supported_ops = [
-            lite.OpsSet.TFLITE_BUILTINS_INT8
-        ]
-    else:
-      if is_int16_quantize:
-        quantized_converter.target_spec.supported_ops = [
-            lite.OpsSet.
-            EXPERIMENTAL_TFLITE_BUILTINS_ACTIVATIONS_INT16_WEIGHTS_INT8,
-            lite.OpsSet.TFLITE_BUILTINS
-        ]
+      quantized_converter.target_spec.supported_ops = ([
+          lite.OpsSet.EXPERIMENTAL_TFLITE_BUILTINS_ACTIVATIONS_INT16_WEIGHTS_INT8
+      ] if is_int16_quantize else [lite.OpsSet.TFLITE_BUILTINS_INT8])
+    elif is_int16_quantize:
+      quantized_converter.target_spec.supported_ops = [
+          lite.OpsSet.
+          EXPERIMENTAL_TFLITE_BUILTINS_ACTIVATIONS_INT16_WEIGHTS_INT8,
+          lite.OpsSet.TFLITE_BUILTINS
+      ]
     quantized_converter.inference_input_type = inference_input_output_type
     quantized_converter.inference_output_type = inference_input_output_type
     quantized_tflite_model = quantized_converter.convert()
@@ -550,28 +543,24 @@ class FromConcreteFunctionTest(lite_v2_test_util.ModelTest):
     quantized_converter.optimizations = [lite.Optimize.DEFAULT]
     quantized_converter.representative_dataset = calibration_gen
     if is_int_only:
-      if is_int16_quantize:
-        quantized_converter.target_spec.supported_ops = [
-            lite.OpsSet.
-            EXPERIMENTAL_TFLITE_BUILTINS_ACTIVATIONS_INT16_WEIGHTS_INT8,
-            lite.OpsSet.SELECT_TF_OPS
-        ]
-      else:
-        quantized_converter.target_spec.supported_ops = [
-            lite.OpsSet.TFLITE_BUILTINS_INT8, lite.OpsSet.SELECT_TF_OPS
-        ]
+      quantized_converter.target_spec.supported_ops = ([
+          lite.OpsSet.
+          EXPERIMENTAL_TFLITE_BUILTINS_ACTIVATIONS_INT16_WEIGHTS_INT8,
+          lite.OpsSet.SELECT_TF_OPS,
+      ] if is_int16_quantize else [
+          lite.OpsSet.TFLITE_BUILTINS_INT8, lite.OpsSet.SELECT_TF_OPS
+      ])
+    elif is_int16_quantize:
+      quantized_converter.target_spec.supported_ops = [
+          lite.OpsSet.
+          EXPERIMENTAL_TFLITE_BUILTINS_ACTIVATIONS_INT16_WEIGHTS_INT8,
+          lite.OpsSet.TFLITE_BUILTINS,
+          lite.OpsSet.SELECT_TF_OPS
+      ]
     else:
-      if is_int16_quantize:
-        quantized_converter.target_spec.supported_ops = [
-            lite.OpsSet.
-            EXPERIMENTAL_TFLITE_BUILTINS_ACTIVATIONS_INT16_WEIGHTS_INT8,
-            lite.OpsSet.TFLITE_BUILTINS,
-            lite.OpsSet.SELECT_TF_OPS
-        ]
-      else:
-        quantized_converter.target_spec.supported_ops = [
-            lite.OpsSet.TFLITE_BUILTINS, lite.OpsSet.SELECT_TF_OPS
-        ]
+      quantized_converter.target_spec.supported_ops = [
+          lite.OpsSet.TFLITE_BUILTINS, lite.OpsSet.SELECT_TF_OPS
+      ]
 
     quantized_converter.inference_input_type = inference_input_output_type
     quantized_converter.inference_output_type = inference_input_output_type
@@ -638,28 +627,20 @@ class FromConcreteFunctionTest(lite_v2_test_util.ModelTest):
         [func])
     quantized_converter.optimizations = [lite.Optimize.DEFAULT]
     quantized_converter.representative_dataset = calib_gen
-    if is_int_only:
-      if is_int16_quantize:
-        quantized_converter.target_spec.supported_ops = [
-            lite.OpsSet.
-            EXPERIMENTAL_TFLITE_BUILTINS_ACTIVATIONS_INT16_WEIGHTS_INT8,
-            lite.OpsSet.TFLITE_BUILTINS
-        ]
-      else:
-        quantized_converter.target_spec.supported_ops = [
-            lite.OpsSet.TFLITE_BUILTINS_INT8, lite.OpsSet.TFLITE_BUILTINS
-        ]
+    if is_int16_quantize:
+      quantized_converter.target_spec.supported_ops = [
+          lite.OpsSet.
+          EXPERIMENTAL_TFLITE_BUILTINS_ACTIVATIONS_INT16_WEIGHTS_INT8,
+          lite.OpsSet.TFLITE_BUILTINS
+      ]
+    elif is_int_only:
+      quantized_converter.target_spec.supported_ops = [
+          lite.OpsSet.TFLITE_BUILTINS_INT8, lite.OpsSet.TFLITE_BUILTINS
+      ]
     else:
-      if is_int16_quantize:
-        quantized_converter.target_spec.supported_ops = [
-            lite.OpsSet.
-            EXPERIMENTAL_TFLITE_BUILTINS_ACTIVATIONS_INT16_WEIGHTS_INT8,
-            lite.OpsSet.TFLITE_BUILTINS
-        ]
-      else:
-        quantized_converter.target_spec.supported_ops = [
-            lite.OpsSet.TFLITE_BUILTINS
-        ]
+      quantized_converter.target_spec.supported_ops = [
+          lite.OpsSet.TFLITE_BUILTINS
+      ]
 
     quantized_converter.inference_input_type = inference_input_output_type
     quantized_converter.inference_output_type = inference_input_output_type
@@ -707,8 +688,8 @@ class FromConcreteFunctionTest(lite_v2_test_util.ModelTest):
     interpreter = Interpreter(model_content=quantized_tflite_model)
     details = interpreter.get_tensor_details()
     num_quantized_tensors = sum(
-        [1 for detail in details
-         if len(detail['quantization_parameters']['scales'])])
+        1 for detail in details
+        if len(detail['quantization_parameters']['scales']))
     if blocklisted_nodes or blocklisted_ops:
       self.assertEqual(num_quantized_tensors, 0)
       return
@@ -2727,7 +2708,7 @@ class IntermediatesTest(lite_v2_test_util.ModelTest):
         val = interpreter.get_tensor(t['index'])
       except ValueError:
         pass
-      tensors.update({t['name']: val})
+      tensors[t['name']] = val
     return (tensors, out)
 
   def testPreserve(self):

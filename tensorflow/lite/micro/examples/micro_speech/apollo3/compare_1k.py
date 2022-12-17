@@ -35,18 +35,15 @@ def new_data_to_array(fn, datatype='int16'):
         vals.extend([int(v, 16) for v in line.split()])
   b = ''.join(map(chr, vals))
 
-  if datatype == 'int8':
-    typestr = 'b'
-    arraylen = int(len(b))
-  elif datatype == 'int16':
+  if datatype == 'int16':
     typestr = 'h'
     arraylen = int(len(b) // 2)
   elif datatype == 'int32':
     typestr = 'i'
     arraylen = int(len(b) // 4)
-  if datatype == 'uint8':
-    typestr = 'B'
-    arraylen = int(len(b))
+  elif datatype == 'int8':
+    typestr = 'b'
+    arraylen = len(b)
   elif datatype == 'uint16':
     typestr = 'H'
     arraylen = int(len(b) // 2)
@@ -54,9 +51,10 @@ def new_data_to_array(fn, datatype='int16'):
     typestr = 'I'
     arraylen = int(len(b) // 4)
 
-  y = np.array(struct.unpack('<' + typestr * arraylen, b))
-
-  return y
+  elif datatype == 'uint8':
+    typestr = 'B'
+    arraylen = len(b)
+  return np.array(struct.unpack('<' + typestr * arraylen, b))
 
 
 # x is the fixed-point input in Qm.n format
@@ -73,7 +71,7 @@ micro_dft = new_data_to_array('micro_dft.txt', datatype='int32')
 cmsis_dft = new_data_to_array('cmsis_dft.txt', datatype='int16')
 py_dft = np.fft.rfft(to_float(cmsis_windowed_input, 15), n=512)
 py_result = np.empty((2 * py_dft.size), dtype=np.float)
-py_result[0::2] = np.real(py_dft)
+py_result[::2] = np.real(py_dft)
 py_result[1::2] = np.imag(py_dft)
 
 micro_power = new_data_to_array('micro_power.txt', datatype='int32')
@@ -115,11 +113,11 @@ plt.subplot(311)
 plt.plot(micro_power, label='Micro fixed')
 plt.legend()
 plt.subplot(312)
-plt.plot(cmsis_power[0:256], label='CMSIS fixed')
+plt.plot(cmsis_power[:256], label='CMSIS fixed')
 plt.legend()
 plt.subplot(313)
 plt.plot(to_float(micro_power, 22), label='Micro to float')
-plt.plot(to_float(cmsis_power[0:256], 6), label='CMSIS to float')
+plt.plot(to_float(cmsis_power[:256], 6), label='CMSIS to float')
 plt.plot(py_power, label='Python result')
 plt.legend()
 

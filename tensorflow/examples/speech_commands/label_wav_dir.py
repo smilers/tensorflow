@@ -62,7 +62,7 @@ def run_graph(wav_dir, labels, input_layer_name, output_layer_name,
     #   predictions  will contain a two-dimensional array, where one
     #   dimension represents the input image count, and the other has
     #   predictions per class
-    for wav_path in glob.glob(wav_dir + '/*.wav'):
+    for wav_path in glob.glob(f'{wav_dir}/*.wav'):
       if not wav_path or not tf.io.gfile.exists(wav_path):
         raise ValueError('Audio file does not exist at {0}'.format(wav_path))
       with open(wav_path, 'rb') as wav_file:

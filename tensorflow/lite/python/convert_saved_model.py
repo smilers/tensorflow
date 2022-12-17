@@ -39,7 +39,7 @@ def _log_tensor_details(tensor_info):
       shape = "unknown_rank"
     else:
       dims = [str(dim.size) for dim in val.tensor_shape.dim]
-      shape = "({})".format(", ".join(dims))
+      shape = f'({", ".join(dims)})'
 
     logging.info("Tensor's key in saved_model's tensor_map: %s", key)
     logging.info(" tensor name: %s, shape: %s, type: %s", val.name, shape,
@@ -82,9 +82,9 @@ def get_signature_def(meta_graph, signature_key):
       "The given SavedModel MetaGraphDef contains SignatureDefs with the "
       "following keys: %s", signature_def_keys)
   if signature_key not in signature_def_keys:
-    raise ValueError("No '{}' in the SavedModel\'s SignatureDefs. Possible "
-                     "values are '{}'.".format(signature_key,
-                                               ",".join(signature_def_keys)))
+    raise ValueError(
+        f"""No '{signature_key}' in the SavedModel\'s SignatureDefs. Possible values are '{",".join(signature_def_keys)}'."""
+    )
   return signature_def_map[signature_key]
 
 

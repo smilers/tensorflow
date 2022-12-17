@@ -36,16 +36,18 @@ get_ocd_response() # clean it out
 # git path to project elf file
 cur_dir = os.getcwd()
 #elf_file = cur_dir + '/../../gen/ecm3531_cortex-m3/bin/' + 'preprocessor_test'
-elf_file = cur_dir + '/../../gen/ecm3531_cortex-m3/bin/' + sys.argv[1]
+elf_file = f'{cur_dir}/../../gen/ecm3531_cortex-m3/bin/{sys.argv[1]}'
 print("elf_file = ",elf_file)
 
 
 # use these to download and run the elf fle
-ocd_commands = ["halt\n",
-                "load_image {}\n".format(elf_file),
-                "mww 0x1001FFF8 0xDEADBEEF\n",
-                "mww 0x1001FFFC 0xC369A517\n",
-                "reset\n"]
+ocd_commands = [
+    "halt\n",
+    f"load_image {elf_file}\n",
+    "mww 0x1001FFF8 0xDEADBEEF\n",
+    "mww 0x1001FFFC 0xC369A517\n",
+    "reset\n",
+]
 
 # OK now do what we came here for!!!
 for x in ocd_commands: 

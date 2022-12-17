@@ -87,7 +87,7 @@ class FreezeSavedModelTest(test_util.TensorFlowTestCase):
                          tag_set=None,
                          signature_key=None):
     if tag_set is None:
-      tag_set = set([tag_constants.SERVING])
+      tag_set = {tag_constants.SERVING}
     if signature_key is None:
       signature_key = signature_constants.DEFAULT_SERVING_SIGNATURE_DEF_KEY
     graph_def, in_tensors, out_tensors, _ = (
@@ -242,7 +242,8 @@ class FreezeSavedModelTest(test_util.TensorFlowTestCase):
     # Convert to tflite
     _, in_tensors, out_tensors = self._convertSavedModel(
         saved_model_dir=saved_model_dir,
-        tag_set=set([saved_model.tag_constants.SERVING, "additional_test_tag"]))
+        tag_set={saved_model.tag_constants.SERVING, "additional_test_tag"},
+    )
 
     self.assertEqual(self._getArrayNames(out_tensors), ["add:0"])
     self.assertEqual(self._getArrayNames(in_tensors), ["Placeholder:0"])

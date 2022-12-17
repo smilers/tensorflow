@@ -195,9 +195,7 @@ def export_debug_info(exported_graph):
   Returns:
     Corresponding GraphDebugInfo with traces for all ops in exported_graph.
   """
-  exported_operations = []
-  for op in exported_graph.get_operations():
-    exported_operations.append(('', op))
+  exported_operations = [('', op) for op in exported_graph.get_operations()]
   return error_interpolation.create_graph_debug_info_def(exported_operations)
 
 
@@ -206,13 +204,13 @@ def write_graph(build_graph, out_dir, debug_info=False):
   g = ops.Graph()
   with g.as_default():
     build_graph(out_dir)
-    filename = os.path.join(out_dir, 'test_graph_%s.pb' % build_graph.__name__)
+    filename = os.path.join(out_dir, f'test_graph_{build_graph.__name__}.pb')
     with open(filename, 'wb') as f:
       f.write(six.ensure_binary(g.as_graph_def().SerializeToString()))
 
     if debug_info:
       filename_debuginfo = os.path.join(
-          out_dir, 'test_debuginfo_%s.pb' % build_graph.__name__)
+          out_dir, f'test_debuginfo_{build_graph.__name__}.pb')
       test_debuginfo = export_debug_info(g)
       with open(filename_debuginfo, 'wb') as f:
         f.write(

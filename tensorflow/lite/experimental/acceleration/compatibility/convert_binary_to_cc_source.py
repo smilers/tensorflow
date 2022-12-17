@@ -68,7 +68,7 @@ def _convert_bytes_to_cc_source(data,
   array_values = "".join(array_lines)
 
   if include_guard is None:
-    include_guard = "TENSORFLOW_LITE_UTIL_" + array_name.upper() + "_DATA_H_"
+    include_guard = f"TENSORFLOW_LITE_UTIL_{array_name.upper()}_DATA_H_"
 
   if include_path is not None:
     include_line = "#include \"{include_path}\"\n".format(

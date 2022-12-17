@@ -55,8 +55,14 @@ class LabelWavTest(test.TestCase):
     labels_filename = os.path.join(tmp_dir, "test_labels.txt")
     with open(labels_filename, "w") as f:
       f.write("a\nb\nc\n")
-    label_wav.label_wav(wav_filename, labels_filename, graph_filename,
-                        input_name + ":0", output_name + ":0", 3)
+    label_wav.label_wav(
+        wav_filename,
+        labels_filename,
+        graph_filename,
+        f"{input_name}:0",
+        f"{output_name}:0",
+        3,
+    )
 
 
 if __name__ == "__main__":

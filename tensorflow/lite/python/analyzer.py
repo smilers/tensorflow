@@ -41,7 +41,7 @@ def _handle_webserver(host_name, server_port, html_body):
       self.wfile.write(bytes(html_body, "utf-8"))
 
   web_server = http.server.HTTPServer((host_name, server_port), MyServer)
-  print("Server started http://%s:%s" % (host_name, server_port))
+  print(f"Server started http://{host_name}:{server_port}")
   try:
     web_server.serve_forever()
   except KeyboardInterrupt:

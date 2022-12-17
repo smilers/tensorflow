@@ -35,23 +35,20 @@ EXAMPLE_DIR_PATH = 'tensorflow/lite/micro/examples/'
 
 def replace_arduino_includes(line, supplied_headers_list):
   """Updates any includes to reference the new Arduino library paths."""
-  include_match = re.match(r'(.*#include.*")(.*)(")', line)
-  if include_match:
-    path = include_match.group(2)
+  if include_match := re.match(r'(.*#include.*")(.*)(")', line):
+    path = include_match[2]
     for supplied_header in supplied_headers_list:
       if six.ensure_str(supplied_header).endswith(path):
         path = supplied_header
         break
-    line = include_match.group(1) + six.ensure_str(path) + include_match.group(
-        3)
+    line = include_match[1] + six.ensure_str(path) + include_match[3]
   return line
 
 
 def replace_arduino_main(line):
   """Updates any occurrences of a bare main definition to the Arduino equivalent."""
-  main_match = re.match(r'(.*int )(main)(\(.*)', line)
-  if main_match:
-    line = main_match.group(1) + 'tflite_micro_main' + main_match.group(3)
+  if main_match := re.match(r'(.*int )(main)(\(.*)', line):
+    line = f'{main_match[1]}tflite_micro_main{main_match[3]}'
   return line
 
 
@@ -81,28 +78,22 @@ def replace_arduino_example_includes(line, _):
   # their default locations into the top-level 'examples' folder in the Arduino
   # library, we have to update any include references to match.
   dir_path = 'tensorflow/lite/micro/examples/'
-  include_match = re.match(
-      r'(.*#include.*")' + six.ensure_str(dir_path) + r'([^/]+)/(.*")', line)
-  if include_match:
-    flattened_name = re.sub(r'/', '_', include_match.group(3))
-    line = include_match.group(1) + flattened_name
+  if include_match := re.match(
+      f'(.*#include.*"){six.ensure_str(dir_path)}([^/]+)/(.*")', line):
+    flattened_name = re.sub(r'/', '_', include_match[3])
+    line = include_match[1] + flattened_name
   return line
 
 
 def replace_esp_example_includes(line, source_path):
   """Updates any includes for local example files."""
-  # Because the export process moves the example source and header files out of
-  # their default locations into the top-level 'main' folder in the ESP-IDF
-  # project, we have to update any include references to match.
-  include_match = re.match(r'.*#include.*"(' + EXAMPLE_DIR_PATH + r'.*)"', line)
-
-  if include_match:
+  if include_match := re.match(f'.*#include.*"({EXAMPLE_DIR_PATH}.*)"', line):
     # Compute the target path relative from the source's directory
-    target_path = include_match.group(1)
+    target_path = include_match[1]
     source_dirname = os.path.dirname(source_path)
     rel_to_target = os.path.relpath(target_path, start=source_dirname)
 
-    line = '#include "%s"' % rel_to_target
+    line = f'#include "{rel_to_target}"'
   return line
 
 
@@ -151,8 +142,7 @@ def transform_esp_sources(input_lines, flags):
       line = replace_esp_example_includes(line, flags.source_path)
     output_lines.append(line)
 
-  output_text = '\n'.join(output_lines)
-  return output_text
+  return '\n'.join(output_lines)
 
 
 def main(unused_args, flags):

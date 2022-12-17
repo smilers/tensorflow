@@ -28,23 +28,20 @@ import six
 
 def replace_includes(line, supplied_headers_list):
   """Updates any includes to reference the new Arduino library paths."""
-  include_match = re.match(r'(.*#include.*")(.*)(")', line)
-  if include_match:
-    path = include_match.group(2)
+  if include_match := re.match(r'(.*#include.*")(.*)(")', line):
+    path = include_match[2]
     for supplied_header in supplied_headers_list:
       if six.ensure_str(supplied_header).endswith(path):
         path = supplied_header
         break
-    line = include_match.group(1) + six.ensure_str(path) + include_match.group(
-        3)
+    line = include_match[1] + six.ensure_str(path) + include_match[3]
   return line
 
 
 def replace_main(line):
   """Updates any occurrences of a bare main definition to the Arduino equivalent."""
-  main_match = re.match(r'(.*int )(main)(\(.*)', line)
-  if main_match:
-    line = main_match.group(1) + 'tflite_micro_main' + main_match.group(3)
+  if main_match := re.match(r'(.*int )(main)(\(.*)', line):
+    line = f'{main_match[1]}tflite_micro_main{main_match[3]}'
   return line
 
 
@@ -74,11 +71,10 @@ def replace_example_includes(line, _):
   # their default locations into the top-level 'examples' folder in the Arduino
   # library, we have to update any include references to match.
   dir_path = 'tensorflow/lite/micro/examples/'
-  include_match = re.match(
-      r'(.*#include.*")' + six.ensure_str(dir_path) + r'([^/]+)/(.*")', line)
-  if include_match:
-    flattened_name = re.sub(r'/', '_', include_match.group(3))
-    line = include_match.group(1) + flattened_name
+  if include_match := re.match(
+      f'(.*#include.*"){six.ensure_str(dir_path)}([^/]+)/(.*")', line):
+    flattened_name = re.sub(r'/', '_', include_match[3])
+    line = include_match[1] + flattened_name
   return line
 
 

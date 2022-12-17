@@ -68,7 +68,7 @@ def extract_object_files(archive_file: io.BufferedIOBase,
 
   # Keep the extracted file names and their content hash values, in order to
   # handle duplicate names correctly.
-  extracted_files = dict()
+  extracted_files = {}
 
   for name, file_content in _extract_next_file(archive_file):
     digest = hashlib.md5(file_content).digest()
@@ -106,7 +106,7 @@ def _generate_modified_filenames(filename: str) -> Iterator[str]:
 
   base, ext = os.path.splitext(filename)
   for name_suffix in itertools.count(1, 1):
-    yield '{}_{}{}'.format(base, name_suffix, ext)
+    yield f'{base}_{name_suffix}{ext}'
 
 
 def _check_archive_signature(archive_file: io.BufferedIOBase) -> None:

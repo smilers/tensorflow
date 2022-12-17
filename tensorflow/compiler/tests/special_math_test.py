@@ -92,9 +92,7 @@ class Log1pTest(xla_test.XLATestCase, parameterized.TestCase):
     if self.device not in ['TPU']:
       return rtol, atol
 
-    if dtype == np.float32:
-      return 4e-4, 0.
-    return 1e-10, 0.
+    return (4e-4, 0.) if dtype == np.float32 else (1e-10, 0.)
 
   def _test_range(self, low, high, dtype, rtol, atol, is_negative=False):
     # Test values near zero.
@@ -162,9 +160,7 @@ class ZetaTest(xla_test.XLATestCase, parameterized.TestCase):
     if self.device not in ['TPU']:
       return rtol, atol
 
-    if dtype == np.float32:
-      return 2e-2, 1e-7
-    return 2e-4, 1e-20
+    return (2e-2, 1e-7) if dtype == np.float32 else (2e-4, 1e-20)
 
   def testBadValues(self):
     q = np.random.uniform(low=0.3, high=20., size=[10])
@@ -292,9 +288,7 @@ class PolygammaTest(xla_test.XLATestCase, parameterized.TestCase):
     if self.device not in ['TPU']:
       return rtol, atol
 
-    if dtype == np.float32:
-      return 2e-2, 1e-7
-    return 2e-4, 1e-20
+    return (2e-2, 1e-7) if dtype == np.float32 else (2e-4, 1e-20)
 
   def testBadValues(self):
     x = np.random.uniform(low=0.3, high=20., size=[10])
@@ -382,9 +376,7 @@ class IgammaTest(xla_test.XLATestCase, parameterized.TestCase):
     if self.device not in ['TPU']:
       return rtol, atol
 
-    if dtype == np.float32:
-      return 2e-2, 1e-7
-    return 2e-4, 1e-20
+    return (2e-2, 1e-7) if dtype == np.float32 else (2e-4, 1e-20)
 
   @parameterized.parameters((np.float32, 1e-2, 1e-11),
                             (np.float64, 1e-4, 1e-30))
@@ -568,9 +560,7 @@ class IgammacTest(xla_test.XLATestCase, parameterized.TestCase):
     if self.device not in ['TPU']:
       return rtol, atol
 
-    if dtype == np.float32:
-      return 2e-2, 1e-7
-    return 2e-4, 1e-20
+    return (2e-2, 1e-7) if dtype == np.float32 else (2e-4, 1e-20)
 
   @parameterized.parameters((np.float32, 1e-2, 1e-11),
                             (np.float64, 1e-4, 1e-30))

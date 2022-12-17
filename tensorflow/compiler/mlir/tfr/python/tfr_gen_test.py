@@ -95,10 +95,7 @@ def _tfr_tensor_tensor_with_cst(x1, y1, x2, y2):
 
 @composite.Composite('TestTwoInputsOp')
 def _tfr_control_flow_if(x, y, pred):
-  if pred:
-    return x
-  else:
-    return y
+  return x if pred else y
 
 
 @composite.Composite('TestThreeInputsOp')
@@ -149,10 +146,7 @@ def _tfr_tf_ops_tensor(x):
 
 @composite.Composite('TestTwoInputsOp')
 def _tfr_tf_ops_tensors(x, y, pred):
-  if pred:
-    return math_ops.Add(x, y)
-  else:
-    return array_ops.Concat(0, [x, y])
+  return math_ops.Add(x, y) if pred else array_ops.Concat(0, [x, y])
 
 
 @composite.Composite('TestInputNOp')
@@ -243,14 +237,12 @@ def _tfr_quant_test(x):
   (qmin, qmax)  # pylint: disable=pointless-statement
   d = _tfr_quant_rescale(y, s, 0)
   e = math_ops.Cast(x=d, DstT=dtypes.int16)
-  f = math_ops.Cast(x=e, DstT=dtypes.int8)
-  return f
+  return math_ops.Cast(x=e, DstT=dtypes.int8)
 
 
 @composite.Composite('TestIdentityNOp')
 def _tfr_quant_test_n(x):
-  y = _tfr_quant_raw_data(x)
-  return y
+  return _tfr_quant_raw_data(x)
 
 
 class TFRGenTestBase(test.TestCase):

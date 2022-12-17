@@ -32,8 +32,8 @@ def to_cc(x, varname, directory='', scale_factor=1):
   x = [str(v) if i % 10 != 0 else '\n    ' + str(v) for i, v in enumerate(x)]
 
   cmsis_path = 'tensorflow/lite/micro/examples/micro_speech/CMSIS'
-  xstr = '#include "{}/{}.h"\n\n'.format(cmsis_path, varname)
-  xstr += 'const int g_{}_size = {};\n'.format(varname, len(x))
+  xstr = (f'#include "{cmsis_path}/{varname}.h"\n\n' +
+          f'const int g_{varname}_size = {len(x)};\n')
   xstr += 'const int16_t g_{}[{}] = {{{}}};\n'.format(varname, len(x),
                                                       ', '.join(x))
 
@@ -44,12 +44,12 @@ def to_cc(x, varname, directory='', scale_factor=1):
 def to_h(_, varname, directory=''):
   """Writes a header file for the table values."""
   tf_prepend = 'TENSORFLOW_LITE_MICRO_EXAMPLES_MICRO_SPEECH_'
-  xstr = '#ifndef {}{}_H_\n'.format(tf_prepend, varname.upper())
-  xstr += '#define {}{}_H_\n\n'.format(tf_prepend, varname.upper())
+  xstr = (f'#ifndef {tf_prepend}{varname.upper()}_H_\n' +
+          f'#define {tf_prepend}{varname.upper()}_H_\n\n')
   xstr += '#include <cstdint>\n\n'
-  xstr += 'extern const int g_{}_size;\n'.format(varname)
-  xstr += 'extern const int16_t g_{}[];\n\n'.format(varname)
-  xstr += '#endif  // {}{}_H_'.format(tf_prepend, varname.upper())
+  xstr += f'extern const int g_{varname}_size;\n'
+  xstr += f'extern const int16_t g_{varname}[];\n\n'
+  xstr += f'#endif  // {tf_prepend}{varname.upper()}_H_'
 
   with open(directory + varname + '.h', 'w') as f:
     f.write(xstr)

@@ -160,8 +160,7 @@ def load_delegate(library, options=None):
   try:
     delegate = Delegate(library, options)
   except ValueError as e:
-    raise ValueError('Failed to load delegate from {}\n{}'.format(
-        library, str(e)))
+    raise ValueError(f'Failed to load delegate from {library}\n{str(e)}')
   return delegate
 
 
@@ -218,13 +217,12 @@ class SignatureRunner(object):
 
     if len(kwargs) != len(self._inputs):
       raise ValueError(
-          'Invalid number of inputs provided for running a SignatureDef, '
-          'expected %s vs provided %s' % (len(self._inputs), len(kwargs)))
+          f'Invalid number of inputs provided for running a SignatureDef, expected {len(self._inputs)} vs provided {len(kwargs)}'
+      )
     # Resize input tensors
     for input_name, value in kwargs.items():
       if input_name not in self._inputs:
-        raise ValueError('Invalid Input name (%s) for SignatureDef' %
-                         input_name)
+        raise ValueError(f'Invalid Input name ({input_name}) for SignatureDef')
       self._interpreter.resize_tensor_input(self._inputs[input_name],
                                             value.shape)
     # Allocate tensors.
@@ -237,10 +235,10 @@ class SignatureRunner(object):
     # TODO(b/184696047): Needs to invoke the actual subgraph instead of main
     #                    graph.
     self._interpreter.invoke()
-    result = {}
-    for output_name, output_index in self._outputs:
-      result[output_name] = self._interpreter.get_tensor(output_index)
-    return result
+    return {
+        output_name: self._interpreter.get_tensor(output_index)
+        for output_name, output_index in self._outputs
+    }
 
 
 @_tf_export('lite.experimental.OpResolverType')
@@ -345,14 +343,16 @@ class Interpreter(object):
       self._custom_op_registerers = []
 
     actual_resolver_type = experimental_op_resolver_type
-    if experimental_preserve_all_tensors and (
-        experimental_op_resolver_type == OpResolverType.AUTO or
-        experimental_op_resolver_type == OpResolverType.BUILTIN):
+    if experimental_preserve_all_tensors and experimental_op_resolver_type in [
+        OpResolverType.AUTO,
+        OpResolverType.BUILTIN,
+    ]:
       actual_resolver_type = OpResolverType.BUILTIN_WITHOUT_DEFAULT_DELEGATES
     op_resolver_id = _get_op_resolver_id(actual_resolver_type)
     if op_resolver_id is None:
-      raise ValueError('Unrecognized passed in op resolver type: {}'.format(
-          experimental_op_resolver_type))
+      raise ValueError(
+          f'Unrecognized passed in op resolver type: {experimental_op_resolver_type}'
+      )
 
     if model_path and not model_content:
       custom_op_registerers_by_name = [
@@ -366,7 +366,7 @@ class Interpreter(object):
               model_path, op_resolver_id, custom_op_registerers_by_name,
               custom_op_registerers_by_func, experimental_preserve_all_tensors))
       if not self._interpreter:
-        raise ValueError('Failed to open {}'.format(model_path))
+        raise ValueError(f'Failed to open {model_path}')
     elif model_content and not model_path:
       custom_op_registerers_by_name = [
           x for x in self._custom_op_registerers if isinstance(x, str)
@@ -382,7 +382,7 @@ class Interpreter(object):
           _interpreter_wrapper.CreateWrapperFromBuffer(
               model_content, op_resolver_id, custom_op_registerers_by_name,
               custom_op_registerers_by_func, experimental_preserve_all_tensors))
-    elif not model_content and not model_path:
+    elif not model_content:
       raise ValueError('`model_path` or `model_content` must be specified.')
     else:
       raise ValueError('Can\'t both provide `model_path` and `model_content`')
@@ -466,14 +466,12 @@ class Interpreter(object):
     op_inputs = self._interpreter.NodeInputs(op_index)
     op_outputs = self._interpreter.NodeOutputs(op_index)
 
-    details = {
+    return {
         'index': op_index,
         'op_name': op_name,
         'inputs': op_inputs,
         'outputs': op_outputs,
     }
-
-    return details
 
   def _get_tensor_details(self, tensor_index):
     """Gets tensor details.
@@ -512,7 +510,7 @@ class Interpreter(object):
     if not tensor_type:
       raise ValueError('Could not get tensor details')
 
-    details = {
+    return {
         'name': tensor_name,
         'index': tensor_index,
         'shape': tensor_size,
@@ -524,10 +522,8 @@ class Interpreter(object):
             'zero_points': tensor_quantization_params[1],
             'quantized_dimension': tensor_quantization_params[2],
         },
-        'sparsity_parameters': tensor_sparsity_params
+        'sparsity_parameters': tensor_sparsity_params,
     }
-
-    return details
 
   # Experimental and subject to change
   def _get_ops_details(self):

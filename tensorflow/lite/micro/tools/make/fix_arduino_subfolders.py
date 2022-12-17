@@ -34,7 +34,7 @@ def rename_example_subfolder_files(library_dir):
     for source_file_path in glob.glob(search_path):
       source_file_dir = os.path.dirname(source_file_path)
       source_file_base = os.path.basename(source_file_path)
-      new_source_file_path = source_file_dir + '_' + source_file_base
+      new_source_file_path = f'{source_file_dir}_{source_file_base}'
       os.rename(source_file_path, new_source_file_path)
 
 
@@ -64,7 +64,7 @@ def rename_example_main_inos(library_dir):
   for ino_path in glob.glob(search_path):
     example_path = os.path.dirname(ino_path)
     example_name = os.path.basename(example_path)
-    new_ino_path = os.path.join(example_path, example_name + '.ino')
+    new_ino_path = os.path.join(example_path, f'{example_name}.ino')
     os.rename(ino_path, new_ino_path)
 
 

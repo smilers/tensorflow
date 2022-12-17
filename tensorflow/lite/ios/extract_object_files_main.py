@@ -26,7 +26,7 @@ from tensorflow.lite.ios import extract_object_files
 
 def main(argv: Sequence[str]) -> None:
   if len(argv) != 3:
-    raise RuntimeError('Usage: {} <archive_file> <dest_dir>'.format(argv[0]))
+    raise RuntimeError(f'Usage: {argv[0]} <archive_file> <dest_dir>')
 
   archive_path = argv[1]
   dest_dir = argv[2]

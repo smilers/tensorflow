@@ -37,10 +37,7 @@ import subprocess
 
 
 def _get_dirs(file_list):
-  dirs = set()
-  for filepath in file_list:
-    dirs.add(os.path.dirname(filepath))
-  return dirs
+  return {os.path.dirname(filepath) for filepath in file_list}
 
 
 def _get_file_list(key, makefile_options):
@@ -115,8 +112,8 @@ def _copy(src_files, dest_files):
 def _create_examples_tree(prefix_dir, examples_list):
   files = []
   for e in examples_list:
-    files.extend(_get_file_list("list_%s_example_sources" % (e), ""))
-    files.extend(_get_file_list("list_%s_example_headers" % (e), ""))
+    files.extend(_get_file_list(f"list_{e}_example_sources", ""))
+    files.extend(_get_file_list(f"list_{e}_example_headers", ""))
 
   # The get_file_list gives path relative to the root of the git repo (where the
   # examples are in tensorflow/lite/micro/examples). However, in the output

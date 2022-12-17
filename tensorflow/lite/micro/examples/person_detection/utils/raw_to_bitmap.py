@@ -73,7 +73,7 @@ def show_and_save_bitmaps(input_file, bitmap_list, channels):
   for idx, bitmap in enumerate(bitmap_list):
     path = os.path.dirname(os.path.abspath(input_file))
     basename = os.path.split(os.path.splitext(input_file)[0])[-1]
-    outputfile = os.path.join(path, basename + '_' + str(idx) + '.bmp')
+    outputfile = os.path.join(path, f'{basename}_{str(idx)}.bmp')
 
     if channels == 3:
       img = Image.fromarray(bitmap, 'RGB')
@@ -123,7 +123,7 @@ def parse_file(inputfile, width, height, channels):
   bytes_written = 0
   frame_start = False
   frame_stop = False
-  frame_list = list()
+  frame_list = []
 
   # collect all pixel data into an int array
   for line in inputfile:
@@ -135,23 +135,24 @@ def parse_file(inputfile, width, height, channels):
     elif line == '--- frame ---\n':
       frame_stop = True
 
-    if frame_start and not frame_stop:
-      linelist = re.findall(r"[\w']+", line)
+    if frame_start:
+      if frame_stop:
+        if bytes_written == height * width * channels:
+          frame_list.append(data)
+          frame_start = False
+          frame_stop = False
 
-      if len(linelist) != 17:
-        # drop this frame
-        frame_start = False
-        continue
+      else:
+        linelist = re.findall(r"[\w']+", line)
 
-      for item in linelist[1:]:
-        data[bytes_written] = int(item, base=16)
-        bytes_written += 1
+        if len(linelist) != 17:
+          # drop this frame
+          frame_start = False
+          continue
 
-    elif frame_start and frame_stop:
-      if bytes_written == height * width * channels:
-        frame_list.append(data)
-        frame_start = False
-        frame_stop = False
+        for item in linelist[1:]:
+          data[bytes_written] = int(item, base=16)
+          bytes_written += 1
 
   return frame_list
 

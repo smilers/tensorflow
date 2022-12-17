@@ -131,10 +131,8 @@ def train_net(
     test_data = test_data.map(reshape_function)
     valid_data = valid_data.map(reshape_function)
   test_labels = np.zeros(test_len)
-  idx = 0
-  for data, label in test_data:  # pylint: disable=unused-variable
+  for idx, (data, label) in enumerate(test_data):# pylint: disable=unused-variable
     test_labels[idx] = label.numpy()
-    idx += 1
   train_data = train_data.batch(batch_size).repeat()
   valid_data = valid_data.batch(batch_size)
   test_data = test_data.batch(batch_size)
@@ -152,7 +150,7 @@ def train_net(
       predictions=tf.constant(pred),
       num_classes=4)
   print(confusion)
-  print("Loss {}, Accuracy {}".format(loss, acc))
+  print(f"Loss {loss}, Accuracy {acc}")
   # Convert the model to the TensorFlow Lite format without quantization
   converter = tf.lite.TFLiteConverter.from_keras_model(model)
   tflite_model = converter.convert()
